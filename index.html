@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  
+  <style>
+    html,body{
+      margin:0;
+      padding:0;
+      height:100%;
+      width:100%;
+      background-color:#000;
+    }
+    video{
+      width:100%;
+      height:100%;
+    }
+  </style>
+</head>
+<body>
+  <video autoplay></video>
+  <script>
+    callCamera(document.querySelector('video'))
+      .catch(err=>{
+        alert(err);
+      });
+  
+    function callCamera(videoDom) {
+      if (!navigator.mediaDevices) {
+        return Promise.reject("浏览器不支持navigator.mediaDevices");
+      }
+      return navigator.mediaDevices.enumerateDevices().then(arr => {
+        let sources = arr
+          .filter(a => {
+            return a.kind.indexOf("video") > -1;
+          })
+          .map(a => {
+            return a.deviceId;
+          });
+
+        return navigator.mediaDevices
+          .getUserMedia({
+            video: {
+              deviceId: sources[1] || sources[0]
+            }
+          })
+          .then(stream => {
+            if (window.URL) {
+              videoDom.src = window.URL.createObjectURL(stream);
+            } else {
+              return Promise.reject("不支持window.URL");
+            }
+          });
+      });
+    }
+  </script>
+</body>
+</html>
